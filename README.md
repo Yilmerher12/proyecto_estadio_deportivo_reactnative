@@ -1,46 +1,39 @@
-# Estadio Deportivo — Mis entregas de `proyecto-estadio-deportivo-reactnative`
+# Estadio Deportivo — Semana 02: Listas, Inputs y Estilos
 
-> **Programa:** Tecnólogo en Análisis y Desarrollo de Software (ADSO)  
-> **Institución:** SENA  
-> **Aprendiz:** Yilmer Hernández Camargo  
-> **Ficha:** 3228970  
+> **Programa:** Tecnólogo en Análisis y Desarrollo de Software (ADSO)
+> **Institución:** SENA — Ficha 3228970
+> **Aprendiz:** Yilmer Hernández Camargo
+> **Bootcamp:** `bc-reactnative` — Semana 02 (Listas, Inputs y Estilos)
 
----
+## Dominio asignado
 
-## Presentación del Proyecto
+**Estadio Deportivo** — recurso `ItemConcessions`: productos de las concesiones (comida y bebidas) que se venden dentro del estadio durante los eventos.
 
-Este repositorio documenta el progreso, entrega y evolución de mis actividades prácticas para el **Bootcamp de reactnative** durante el presente trimestre. 
+Campos: `id`, `name`, `price`, `type`, `description`, `stock`, `available`.
 
-Para fomentar un aprendizaje práctico y diversificado, el bootcamp asigna un dominio de negocio único a cada aprendiz. En mi caso, el proyecto gira en torno a la gestión e infraestructura lógica de un **Estadio Deportivo**, simulando las operaciones de backend necesarias para coordinar eventos masivos (partidos, conciertos, espectáculos) y sus servicios asociados.
+## Qué se implementó
 
----
+- Pantalla principal (`HomeScreen`) con `FlatList` + `TextInput` de búsqueda en tiempo real, filtrando por nombre (case-insensitive) con `useMemo`.
+- Estado vacío personalizado (`ListEmptyComponent`) cuando la búsqueda no encuentra productos.
+- `renderItem` y el componente de estado vacío memoizados con `useCallback`.
+- `keyExtractor` por `id` (nunca por índice), `ItemSeparatorComponent` entre tarjetas y `keyboardShouldPersistTaps` para no perder el tap al tocar la lista con el teclado abierto.
+- `KeyboardAvoidingView` para que el teclado no tape el contenido en iOS/Android.
+- Componente `ItemCard` reutilizable que muestra nombre, precio, tipo, descripción, disponibilidad y stock de cada producto.
+- 10 productos reales de concesiones en `src/data/mockData.ts` (gaseosas, cerveza, comida típica como lechona y empanadas, etc.).
+- Estilos con las constantes de `src/theme/index.ts` (`COLORS`, `TYPOGRAPHY`, `SPACING`, `RADIUS`), sin valores hardcodeados.
+- Tipado estricto en TypeScript, sin `any`.
 
-## Entidades del Dominio
+## Un bug que me encontré (y cómo lo resolví)
 
-El sistema se estructura conceptualmente alrededor de cuatro entidades principales:
+El patrón de `KeyboardAvoidingView` + `TouchableWithoutFeedback` para cerrar el teclado al tocar fuera del input (el que sugiere el propio starter) hace que en la versión web el buscador pierda el foco apenas escribes: en React Native Web el `TouchableWithoutFeedback` no usa el sistema de "responder" nativo, así que el clic sobre el `TextInput` termina burbujeando hasta el `TouchableWithoutFeedback` y dispara `Keyboard.dismiss()`, que blurea el input recién enfocado. En nativo (iOS/Android) esto no pasa porque el input "reclama" el toque antes de que llegue al padre.
 
-| Módulo | Descripción | Casos de Uso Principales |
-| :--- | :--- | :--- |
-| **events** | Gestión de programación para partidos, conciertos u otros espectáculos masivos. | Crear fechas, definir aforos y consultar estado de eventos. |
-| **seats** | Representación física y distribución de las zonas del estadio. | Asignación de sectores, filas y numeración de asientos. |
-| **tickets** | Proceso de reserva, venta y validación para el acceso al recinto. | Control de disponibilidad, compra y emisión de entradas. |
-| **concessions** | Gestión de comercios internos y servicios de consumo dentro del estadio. | Catálogo de productos, control de inventario y órdenes. |
+La solución fue envolver el contenido con `TouchableWithoutFeedback` solo cuando `Platform.OS !== 'web'`; en web se renderiza el contenido directo, sin ese wrapper (tampoco tiene mucho sentido "cerrar teclado" en un navegador).
 
-*Nota: La implementación de cada módulo se aborda de forma progresiva según los requerimientos entregables de cada semana.*
+## Cómo correr
 
----
+```bash
+pnpm install
+pnpm start
+```
 
-## Estructura y Navegación del Repositorio
-
-El código fuente del proyecto no se almacena centralizado en la rama principal, sino estructurado mediante **ramas por entregable (`feature branches`)**:
-
-* **`main`**: Funciona exclusivamente como portada, documentación general y punto de entrada al repositorio.
-* **`week-XX`**: Ramas independientes para cada entrega semanal (ejemplo: `week-01`, `week-02`). Cada una contiene la implementación del código funcional, pruebas y configuraciones correspondientes a ese módulo.
-
-```text
-proyecto-estadio-deportivo-reactnative/
-├──  README.md (Rama: main - Portada principal)
-└── [Ramas de trabajo]
-    ├── 🌿 week-01 (Fundamentos y configuración inicial)
-    ├── 🌿 week-02 (Rutas, controladores y manejo de datos)
-    └── 🌿 week-0...
+Escanea el QR con Expo Go (Android/iOS), presiona `a` / `i` en la terminal para abrir en un emulador, o `w` para abrirlo en el navegador.
