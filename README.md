@@ -1,46 +1,39 @@
-# Estadio Deportivo — Mis entregas de `proyecto-estadio-deportivo-reactnative`
+# Estadio Deportivo — Semana 03: React Navigation 7
 
-> **Programa:** Tecnólogo en Análisis y Desarrollo de Software (ADSO)  
-> **Institución:** SENA  
-> **Aprendiz:** Yilmer Hernández Camargo  
-> **Ficha:** 3228970  
+> **Programa:** Tecnólogo en Análisis y Desarrollo de Software (ADSO)
+> **Institución:** SENA — Ficha 3228970
+> **Aprendiz:** Yilmer Hernández Camargo
+> **Bootcamp:** `bc-reactnative` — Semana 03 (React Navigation)
 
----
+## Dominio asignado
 
-## Presentación del Proyecto
+**Estadio Deportivo** — recurso `ConcessionsItem`: productos de las concesiones (comida y bebidas) que se venden dentro del estadio.
 
-Este repositorio documenta el progreso, entrega y evolución de mis actividades prácticas para el **Bootcamp de reactnative** durante el presente trimestre. 
+Campos: `id`, `name`, `description`, `price`, `type`, `stock`, `available`.
 
-Para fomentar un aprendizaje práctico y diversificado, el bootcamp asigna un dominio de negocio único a cada aprendiz. En mi caso, el proyecto gira en torno a la gestión e infraestructura lógica de un **Estadio Deportivo**, simulando las operaciones de backend necesarias para coordinar eventos masivos (partidos, conciertos, espectáculos) y sus servicios asociados.
+## Qué se implementó
 
----
+- **Tab Navigator** (`@react-navigation/bottom-tabs`) con dos pestañas: **Catálogo** (Home) y **Mis Guardados** (Favorites), con íconos de `Ionicons` que cambian según la pestaña activa y color de acento `#61DAFB`.
+- **Stack Navigator anidado** dentro de la pestaña Home: `HomeList` (lista) → `HomeDetail` (detalle), con header propio por pantalla (`HeaderTintColor`, título dinámico con el nombre del producto).
+- **Params tipados** de punta a punta con `RootTabParamList` y `HomeStackParamList` — al navegar al detalle se pasa el producto completo (`id`, `name`, `type`, `description`, `price`, `stock`, `available`), sin usar `any`.
+- `HomeScreen`: `FlatList` con los 10 productos, mostrando nombre, descripción, precio y tipo.
+- `DetailScreen`: lee los params con `useRoute` y muestra cada campo del producto en tarjetas.
+- `FavoritesScreen`: lista estática de 3 productos guardados como favoritos.
+- Estilos con las constantes de `src/theme/index.ts` (`COLORS`, `TYPOGRAPHY`, `SPACING`, `RADIUS`).
 
-## Entidades del Dominio
+## Bugs del starter que encontré y corregí
 
-El sistema se estructura conceptualmente alrededor de cuatro entidades principales:
+- `package.json` traía `"main": "expo-router/entry"` sin tener `expo-router` instalado (y el proyecto ni siquiera usa expo-router, usa `NavigationContainer` manual). Lo cambié a `"main": "index.js"` y agregué el `index.js` con `registerRootComponent`, igual que en semana 02.
+- `app.json` tenía `"plugins": ["expo-router"]`, que rompía el arranque por la misma razón. Lo quité.
+- `DetailScreen.tsx` importaba `NativeStackRouteProp` desde `@react-navigation/native-stack`, un tipo que no existe en la v7 de esa librería (solo existe `NativeStackNavigationProp`). El tipo de ruta genérico (`RouteProp`) en realidad vive en `@react-navigation/native`.
+- `tsconfig.json` tenía `baseUrl` junto a `paths` para un alias `@/*` que no se usaba en ningún archivo. Con TypeScript 6.0.3 (la versión pineada), `baseUrl` ya está deprecado y da error duro al compilar, así que quité ambos.
+- Faltaba la carpeta `assets/` (el `app.json` apuntaba a íconos que no existían).
 
-| Módulo | Descripción | Casos de Uso Principales |
-| :--- | :--- | :--- |
-| **events** | Gestión de programación para partidos, conciertos u otros espectáculos masivos. | Crear fechas, definir aforos y consultar estado de eventos. |
-| **seats** | Representación física y distribución de las zonas del estadio. | Asignación de sectores, filas y numeración de asientos. |
-| **tickets** | Proceso de reserva, venta y validación para el acceso al recinto. | Control de disponibilidad, compra y emisión de entradas. |
-| **concessions** | Gestión de comercios internos y servicios de consumo dentro del estadio. | Catálogo de productos, control de inventario y órdenes. |
+## Cómo correr
 
-*Nota: La implementación de cada módulo se aborda de forma progresiva según los requerimientos entregables de cada semana.*
+```bash
+pnpm install
+pnpm start
+```
 
----
-
-## Estructura y Navegación del Repositorio
-
-El código fuente del proyecto no se almacena centralizado en la rama principal, sino estructurado mediante **ramas por entregable (`feature branches`)**:
-
-* **`main`**: Funciona exclusivamente como portada, documentación general y punto de entrada al repositorio.
-* **`week-XX`**: Ramas independientes para cada entrega semanal (ejemplo: `week-01`, `week-02`). Cada una contiene la implementación del código funcional, pruebas y configuraciones correspondientes a ese módulo.
-
-```text
-proyecto-estadio-deportivo-reactnative/
-├──  README.md (Rama: main - Portada principal)
-└── [Ramas de trabajo]
-    ├── 🌿 week-01 (Fundamentos y configuración inicial)
-    ├── 🌿 week-02 (Rutas, controladores y manejo de datos)
-    └── 🌿 week-0...
+Escanea el QR con Expo Go (Android/iOS), presiona `a` / `i` para un emulador, o `w` para abrirlo en el navegador.
