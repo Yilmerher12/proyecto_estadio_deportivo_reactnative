@@ -1,46 +1,40 @@
-# Estadio Deportivo — Mis entregas de `proyecto-estadio-deportivo-reactnative`
+# Estadio Deportivo — Semana 04: Estado Global con Zustand
 
-> **Programa:** Tecnólogo en Análisis y Desarrollo de Software (ADSO)  
-> **Institución:** SENA  
-> **Aprendiz:** Yilmer Hernández Camargo  
-> **Ficha:** 3228970  
+> **Programa:** Tecnólogo en Análisis y Desarrollo de Software (ADSO)
+> **Institución:** SENA — Ficha 3228970
+> **Aprendiz:** Yilmer Hernández Camargo
+> **Bootcamp:** `bc-reactnative` — Semana 04 (Estado Global con Zustand)
 
----
+## Dominio asignado
 
-## Presentación del Proyecto
+**Estadio Deportivo** — recurso `ItemConcessions`: productos de las concesiones (comida y bebidas) que se venden dentro del estadio.
 
-Este repositorio documenta el progreso, entrega y evolución de mis actividades prácticas para el **Bootcamp de reactnative** durante el presente trimestre. 
+Campos: `id`, `name`, `description`, `price`, `type`, `stock`, `available`.
 
-Para fomentar un aprendizaje práctico y diversificado, el bootcamp asigna un dominio de negocio único a cada aprendiz. En mi caso, el proyecto gira en torno a la gestión e infraestructura lógica de un **Estadio Deportivo**, simulando las operaciones de backend necesarias para coordinar eventos masivos (partidos, conciertos, espectáculos) y sus servicios asociados.
+## Qué se implementó
 
----
+- **Tab Navigator** con dos pestañas: **Concesiones** (Home) y **Guardados**, con ícono `fast-food` / `fast-food-outline` para la pestaña principal.
+- **Stack anidado en Home**: lista (`HomeList`) → detalle (`HomeDetail`), con params tipados.
+- **Store Zustand (`useSavedStore`)** creado con `create<SavedStore>()`, sin `any`, con las acciones `addItem`, `removeItem`, `clearAll` y el helper `isItemSaved`.
+- **Badge en tiempo real** en el tab "Guardados", conectado al store con un selector específico (`state => state.items.length`) — se actualiza al instante sin recargar ni pasar props entre pantallas.
+- **`DetailScreen`**: botón "Guardar" / "Quitar" que lee y escribe el store, con tarjetas de detalle rediseñadas (descripción, precio, tipo, stock, disponibilidad con color según estado).
+- **`SavedScreen`**: lista de guardados con botón individual para quitar cada ítem y botón "Limpiar todo".
 
-## Entidades del Dominio
+## Bugs que encontré y corregí
 
-El sistema se estructura conceptualmente alrededor de cuatro entidades principales:
+- `package.json` traía `"main": "expo-router/entry"` sin `expo-router` instalado (mismo patrón de bugs de semanas anteriores). Lo cambié a `"main": "index.js"` con el `index.js` de siempre.
+- `tsconfig.json` tenía `baseUrl` + `paths` para un alias `@/*`, y con TypeScript 6.0.3 eso ya es error duro al compilar. Como solo se usaba en un import, lo cambié a ruta relativa y quité `baseUrl`/`paths`.
+- Dos typos de tipo: `mockData.ts` importaba `ItemConcession` (sin la "s") en vez de `ItemConcessions`, y `SavedScreen.tsx` tenía el mismo typo en el tipo de `renderItem`.
+- El ícono del tab `'Kiosk'` no existe en Ionicons — lo cambié por `'fast-food'` / `'fast-food-outline'`, que sí encaja con el dominio.
+- Faltaban estilos usados pero nunca definidos (`cardPrice`, `cardStock` en `HomeScreen`; `field`, `fieldLabel`, `fieldValue` en `DetailScreen`) — no compilaba.
+- **Bug de reactividad en Zustand**: en `DetailScreen`, `isSaved` se calculaba llamando a la función `isItemSaved(id)` obtenida con `useSavedStore(state => state.isItemSaved)`. Seleccionar una función no suscribe a los cambios del store (la referencia de la función nunca cambia), así que el botón "Guardar" no se actualizaba visualmente aunque el store sí guardaba el ítem (el badge del tab sí funcionaba, porque ese selector sí lee `items` directamente). Se corrigió seleccionando el dato derivado directamente: `useSavedStore(state => state.items.some(i => i.id === id))`.
+- Faltaba la carpeta `assets/` (el `app.json` apuntaba a íconos que no existían).
 
-| Módulo | Descripción | Casos de Uso Principales |
-| :--- | :--- | :--- |
-| **events** | Gestión de programación para partidos, conciertos u otros espectáculos masivos. | Crear fechas, definir aforos y consultar estado de eventos. |
-| **seats** | Representación física y distribución de las zonas del estadio. | Asignación de sectores, filas y numeración de asientos. |
-| **tickets** | Proceso de reserva, venta y validación para el acceso al recinto. | Control de disponibilidad, compra y emisión de entradas. |
-| **concessions** | Gestión de comercios internos y servicios de consumo dentro del estadio. | Catálogo de productos, control de inventario y órdenes. |
+## Cómo correr
 
-*Nota: La implementación de cada módulo se aborda de forma progresiva según los requerimientos entregables de cada semana.*
+```bash
+pnpm install
+pnpm start
+```
 
----
-
-## Estructura y Navegación del Repositorio
-
-El código fuente del proyecto no se almacena centralizado en la rama principal, sino estructurado mediante **ramas por entregable (`feature branches`)**:
-
-* **`main`**: Funciona exclusivamente como portada, documentación general y punto de entrada al repositorio.
-* **`week-XX`**: Ramas independientes para cada entrega semanal (ejemplo: `week-01`, `week-02`). Cada una contiene la implementación del código funcional, pruebas y configuraciones correspondientes a ese módulo.
-
-```text
-proyecto-estadio-deportivo-reactnative/
-├──  README.md (Rama: main - Portada principal)
-└── [Ramas de trabajo]
-    ├── 🌿 week-01 (Fundamentos y configuración inicial)
-    ├── 🌿 week-02 (Rutas, controladores y manejo de datos)
-    └── 🌿 week-0...
+Escanea el QR con Expo Go (Android/iOS), presiona `a` / `i` para un emulador, o `w` para abrirlo en el navegador.
