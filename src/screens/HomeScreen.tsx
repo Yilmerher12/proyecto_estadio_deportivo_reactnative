@@ -9,6 +9,7 @@ import {
     StyleSheet,
     Text,
     View,
+    Image,
     type ListRenderItem,
 } from 'react-native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -18,7 +19,6 @@ import { ITEMS } from '../data/mockData';
 import { COLORS, RADIUS, SPACING, TYPOGRAPHY } from '../theme';
 import type { ItemConcessions } from '../types';
 import type { HomeStackParamList } from '../navigation/types';
-
 type HomeScreenNavProp = NativeStackNavigationProp<HomeStackParamList, 'HomeList'>;
 
 
@@ -39,6 +39,7 @@ function ItemCard({ item, onPress }: ItemCardProps): React.JSX.Element {
             </View>
 
             <View style={styles.cardContent}>
+                <Image source = {{uri: item.image}}/>
                 <Text style={styles.cardTitle} numberOfLines={1}>
                     {item.name}
                 </Text>
@@ -71,6 +72,7 @@ export function HomeScreen(): React.JSX.Element {
                     id: item.id, name: item.name, description: item.description, 
                     price: item.price, 
                     type: item.type, 
+                    image: item.image,
                     stock: item.stock, 
                     available: item.available 
                 })

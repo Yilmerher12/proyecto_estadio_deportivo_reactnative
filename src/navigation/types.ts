@@ -13,6 +13,7 @@ export type HomeStackParamList = {
         id: string;
         name: string;
         description: string;
+        image: string;
         price: number;
         type: string;
         stock: number;

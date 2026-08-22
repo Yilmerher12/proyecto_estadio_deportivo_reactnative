@@ -4,7 +4,7 @@
 // Esta pantalla demuestra cómo acceder al store desde cualquier screen.
 
 import React from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View, Image } from 'react-native';
 import { useRoute, type RouteProp } from '@react-navigation/native';
 
 import { COLORS, RADIUS, SPACING, TYPOGRAPHY } from '../theme';
@@ -41,8 +41,8 @@ export function DetailScreen(): React.JSX.Element {
 
     return (
         <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-            <View style={styles.hero}>
-                <Text style={styles.heroLetter}>{name.charAt(0)}</Text>
+            <View style={styles.heroImage}>
+                <Image source={{ uri: item?.image }} style={styles.heroImage}/>
             </View>
 
             <View style={styles.info}>
@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
         padding: SPACING.lg,
         gap: SPACING.md,
     },
-    hero: {
+    heroImage: {
         width: 96,
         height: 96,
         borderRadius: RADIUS.lg,

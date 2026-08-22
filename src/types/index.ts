@@ -6,6 +6,7 @@ export interface ItemConcessions {
     id: string;
     name: string;
     description: string;
+    image: string;
     price: number;
     type: string;
     stock: number;
