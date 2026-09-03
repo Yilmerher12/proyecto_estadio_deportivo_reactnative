@@ -1,46 +1,37 @@
-# Estadio Deportivo — Mis entregas de `proyecto-estadio-deportivo-reactnative`
+# Estadio Deportivo — Semana 06: Formularios con React Hook Form + Zod
 
-> **Programa:** Tecnólogo en Análisis y Desarrollo de Software (ADSO)  
-> **Institución:** SENA  
-> **Aprendiz:** Yilmer Hernández Camargo  
-> **Ficha:** 3228970  
+> **Programa:** Tecnólogo en Análisis y Desarrollo de Software (ADSO)
+> **Institución:** SENA — Ficha 3228970
+> **Aprendiz:** Yilmer Hernández Camargo
+> **Bootcamp:** `bc-reactnative` — Semana 06 (Formularios con React Hook Form + Zod)
 
----
+## Dominio asignado
 
-## Presentación del Proyecto
+**Estadio Deportivo** — recurso `ConcessionItem`: productos de las concesiones (comida y bebidas) que se venden dentro del estadio.
 
-Este repositorio documenta el progreso, entrega y evolución de mis actividades prácticas para el **Bootcamp de reactnative** durante el presente trimestre. 
+Sigo usando JSONPlaceholder como proxy de red real (igual que en semana 05) — el detalle de cómo se mapea cada post a un producto del catálogo está explicado en el README de esa semana.
 
-Para fomentar un aprendizaje práctico y diversificado, el bootcamp asigna un dominio de negocio único a cada aprendiz. En mi caso, el proyecto gira en torno a la gestión e infraestructura lógica de un **Estadio Deportivo**, simulando las operaciones de backend necesarias para coordinar eventos masivos (partidos, conciertos, espectáculos) y sus servicios asociados.
+## Qué se implementó
 
----
+- **`FormField` genérico** (`src/components/FormField.tsx`): encapsula `Controller` + `TextInput` + mensaje de error, tipado correctamente con los generics de React Hook Form (`Control<T>`, `FieldPath<T>`) — el starter lo dejaba con `any` a propósito como TODO, y ya quedó tipado sin `any`. Se reutiliza igual en `CreateScreen` y `EditScreen`.
+- **`concessionSchema`** (`src/schemas/concessionSchema.ts`): `name` (requerido, máx. 80), `price` (`z.coerce.number().positive()` — campo numérico validado desde un `TextInput` de texto), `description` (opcional, máx. 500). El tipo `ConcessionFormData` se infiere del schema, sin interfaz duplicada.
+- **`CreateScreen`**: `useForm` + `zodResolver(concessionSchema)`, conectado a `useCreateConcession` (mutación de TanStack Query). Botón deshabilitado y con spinner mientras `isSubmitting`; al terminar navega atrás.
+- **`EditScreen`**: cachea el patrón clave de la semana — `useConcessionById(id)` trae el producto del servidor, y un `useEffect` llama `reset({...})` cuando llegan los datos para precargar el formulario. El botón "Guardar cambios" solo se habilita cuando `isDirty` es `true` (evita guardar si no cambiaste nada).
+- Mensajes de validación visibles bajo cada campo, sin usar `state` de React para validar — todo pasa por Zod.
 
-## Entidades del Dominio
+## Un problema de tipos que encontré (y cómo lo resolví)
 
-El sistema se estructura conceptualmente alrededor de cuatro entidades principales:
+Al usar `z.coerce.number()` para el campo `price`, el tipo de **entrada** del formulario (lo que hay en el campo antes de validar, básicamente cualquier cosa coercible) y el tipo de **salida** (`number`, después de que Zod lo convierte) son distintos. Si `useForm` se tipa con un solo genérico (`useForm<ConcessionFormData>`), TypeScript se queja porque el `resolver` de Zod espera que la entrada y la salida sean el mismo tipo.
 
-| Módulo | Descripción | Casos de Uso Principales |
-| :--- | :--- | :--- |
-| **events** | Gestión de programación para partidos, conciertos u otros espectáculos masivos. | Crear fechas, definir aforos y consultar estado de eventos. |
-| **seats** | Representación física y distribución de las zonas del estadio. | Asignación de sectores, filas y numeración de asientos. |
-| **tickets** | Proceso de reserva, venta y validación para el acceso al recinto. | Control de disponibilidad, compra y emisión de entradas. |
-| **concessions** | Gestión de comercios internos y servicios de consumo dentro del estadio. | Catálogo de productos, control de inventario y órdenes. |
+La solución fue exportar los dos tipos inferidos por separado — `ConcessionFormInput` (`z.input<...>`) y `ConcessionFormData` (`z.output<...>`) — y usar la forma de tres genéricos de `useForm`: `useForm<ConcessionFormInput, unknown, ConcessionFormData>`. Así `control` trabaja con el tipo de entrada (lo que hay en pantalla) y `onSubmit` recibe el tipo de salida ya validado y coercionado (`price` como `number` de verdad).
 
-*Nota: La implementación de cada módulo se aborda de forma progresiva según los requerimientos entregables de cada semana.*
+## Cómo correr
 
----
+```bash
+pnpm install
+pnpm start
+```
 
-## Estructura y Navegación del Repositorio
+Escanea el QR con Expo Go (Android/iOS), presiona `a` / `i` para un emulador, o `w` para abrirlo en el navegador.
 
-El código fuente del proyecto no se almacena centralizado en la rama principal, sino estructurado mediante **ramas por entregable (`feature branches`)**:
-
-* **`main`**: Funciona exclusivamente como portada, documentación general y punto de entrada al repositorio.
-* **`week-XX`**: Ramas independientes para cada entrega semanal (ejemplo: `week-01`, `week-02`). Cada una contiene la implementación del código funcional, pruebas y configuraciones correspondientes a ese módulo.
-
-```text
-proyecto-estadio-deportivo-reactnative/
-├──  README.md (Rama: main - Portada principal)
-└── [Ramas de trabajo]
-    ├── 🌿 week-01 (Fundamentos y configuración inicial)
-    ├── 🌿 week-02 (Rutas, controladores y manejo de datos)
-    └── 🌿 week-0...
+Lo probé en el navegador: envié el formulario de creación vacío y vi los dos mensajes de error de Zod ("El nombre es requerido", "El precio debe ser mayor que 0"); lo llené bien y creó el producto, volviendo solo a la lista. Después entré al detalle de "Coca Cola 500ml", confirmé que el formulario de edición se precargó solo con sus datos reales (incluida la descripción que viene de la API), cambié el precio y comprobé que el botón "Guardar cambios" solo se activa cuando el formulario está `dirty`.
