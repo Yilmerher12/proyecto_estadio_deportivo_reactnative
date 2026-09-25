@@ -1,52 +1,66 @@
-# Estadio Deportivo — Mis entregas de `proyecto-estadio-deportivo-reactnative`
+# Estadio Deportivo — Semana 09: Animaciones Básicas
 
-> **Programa:** Tecnólogo en Análisis y Desarrollo de Software (ADSO)  
-> **Institución:** SENA  
-> **Aprendiz:** Yilmer Hernández Camargo  
-> **Ficha:** 3228970  
+> **Programa:** Tecnólogo en Análisis y Desarrollo de Software (ADSO)
+> **Institución:** SENA — Ficha 3228970
+> **Aprendiz:** Yilmer Hernández Camargo
+> **Bootcamp:** `bc-reactnative` — Semana 09 (Animated API + LayoutAnimation)
 
----
+## Dominio asignado
 
-## Presentación del Proyecto
+**Estadio Deportivo** — inventario de las **concesiones** (comida, bebida y merchandising). Cada
+producto tiene nombre, categoría, precio, punto de venta y stock; la barra de progreso muestra el
+**% de stock disponible** (`stock / maxStock`). Los productos viven en un store de Zustand
+(`src/store/concessionsStore.ts`) para que Home y Detalle compartan el mismo inventario, incluidos
+los productos que se agregan o eliminan en la sesión.
 
-Este repositorio documenta el progreso, entrega y evolución de mis actividades prácticas para el **Bootcamp de reactnative** durante el presente trimestre. 
+## Las 5 animaciones, aplicadas al dominio
 
-Para fomentar un aprendizaje práctico y diversificado, el bootcamp asigna un dominio de negocio único a cada aprendiz. En mi caso, el proyecto gira en torno a la gestión e infraestructura lógica de un **Estadio Deportivo**, simulando las operaciones de backend necesarias para coordinar eventos masivos (partidos, conciertos, espectáculos) y sus servicios asociados.
+| # | Animación | Dónde | Cómo |
+| --- | --- | --- | --- |
+| 1 | Entrada de la pantalla de detalle | `DetailScreen` | `Animated.parallel` de dos `timing` de 500 ms: `opacity` 0→1 y `translateY` 30→0 |
+| 2 | Feedback táctil de la card | `AnimatedCard` | `Animated.spring` a `scale` 0.95 en `onPressIn`, y de vuelta a 1 con rebote (`tension 300`, `friction 10`) en `onPressOut` |
+| 3 | Barra de stock | `ProgressBar` | un solo `Animated.Value` (0→progreso, 800 ms) con dos `interpolate`: ancho `'0%'→'100%'` y color rojo→amarillo→verde. Una camiseta con 12 % queda roja, una cerveza con 45 % amarilla y un perro caliente con 90 % verde |
+| 4 | Entrada en cascada | `HomeScreen` | `Animated.stagger(80, ...)` con un `Animated.Value` por producto (`opacity` + `translateY` 20→0) |
+| 5 | Transición de layout | `HomeScreen` | `LayoutAnimation.configureNext(easeInEaseOut)` justo antes de agregar o eliminar un producto; en Android se activa `UIManager.setLayoutAnimationEnabledExperimental` a nivel de módulo |
 
----
+Además, `AnimatedButton` (timing de 80 ms al presionar + spring al soltar) da el mismo feedback
+táctil a los botones "Eliminar del inventario" y "+ Añadir producto". Todas las animaciones usan
+`useNativeDriver: true`, salvo la barra de progreso (`width` y `backgroundColor` no son
+propiedades nativas, así que ahí es `false` a propósito).
 
-## Entidades del Dominio
+## Bugs que encontré y corregí en el starter
 
-El sistema se estructura conceptualmente alrededor de cuatro entidades principales:
+- **`"main": "App.tsx"` en `package.json`** — el bug recurrente: la app nunca se monta. Cambié a
+  `"expo/AppEntry"`.
+- **`app.json` declaraba el plugin `expo-router`**, que no está instalado ni se usa (la navegación
+  es React Navigation). Lo quité.
+- **Faltaba la carpeta `assets/`** que `app.json` referencia como icono. La restauré.
+- **`SafeAreaView` de `react-native`** está deprecado; usé el de `react-native-safe-area-context`
+  (que ya venía instalado).
+- **Stagger con items dinámicos**: el TODO del starter crea los `Animated.Value` con
+  `SAMPLE_ITEMS.map(...)`, lo que rompe en cuanto se agrega un producto (`itemAnims[index]` sería
+  `undefined`). Guardé los valores en un `Map` por id; los productos agregados después del stagger
+  inicial nacen con valor 1 para no quedar invisibles.
+- `tsconfig.json` con `baseUrl`/`paths` (`@/*`) sin usar: lo dejé solo con `strict`.
 
-| Módulo | Descripción | Casos de Uso Principales |
-| :--- | :--- | :--- |
-| **events** | Gestión de programación para partidos, conciertos u otros espectáculos masivos. | Crear fechas, definir aforos y consultar estado de eventos. |
-| **seats** | Representación física y distribución de las zonas del estadio. | Asignación de sectores, filas y numeración de asientos. |
-| **tickets** | Proceso de reserva, venta y validación para el acceso al recinto. | Control de disponibilidad, compra y emisión de entradas. |
-| **concessions** | Gestión de comercios internos y servicios de consumo dentro del estadio. | Catálogo de productos, control de inventario y órdenes. |
+## Cómo lo verifiqué
 
-*Nota: La implementación de cada módulo se aborda de forma progresiva según los requerimientos entregables de cada semana.*
+Levanté la app con `expo start --web` y probé de verdad: los 4 productos entran en cascada, el
+botón "+ Añadir producto" suma uno (el contador pasa de 4 a 5), "Eliminar del inventario" lo
+quita, y tocar una card abre el detalle con su stock (barra amarilla al 45 %). `tsc --noEmit` sin
+errores.
 
----
+Límite del entorno: en web la app no tiene módulo nativo de animación, así que React Native avisa
+`useNativeDriver is not supported ... Falling back to JS-based animation` y `LayoutAnimation` no
+hace nada. Ese aviso es solo del navegador; en **Expo Go** (iOS/Android) corre con el driver
+nativo y el `LayoutAnimation` sí se ve. Las curvas y tiempos de las animaciones conviene
+revisarlas en el teléfono.
 
-## Estructura y Navegación del Repositorio
+## Cómo correr
 
-El código fuente del proyecto no se almacena centralizado en la rama principal, sino estructurado mediante **ramas por entregable (`feature branches`)**:
-
-* **`main`**: Funciona exclusivamente como portada, documentación general y punto de entrada al repositorio.
-* **`week-XX`**: Ramas independientes para cada entrega semanal (ejemplo: `week-01`, `week-02`). Cada una contiene la implementación del código funcional, pruebas y configuraciones correspondientes a ese módulo.
-
-```text
-proyecto-estadio-deportivo-reactnative/
-├── README.md (Rama: main - Portada principal)
-└── [Ramas de trabajo]
-    ├── 🌿 week-01 (App de tarjetas — concesiones)
-    ├── 🌿 week-02 (Listas, inputs y estilos)
-    ├── 🌿 week-03 (React Navigation 7)
-    ├── 🌿 week-04 (Estado global con Zustand)
-    ├── 🌿 week-05 (Networking y TanStack Query v5)
-    ├── 🌿 week-06 (Formularios con React Hook Form + Zod)
-    ├── 🌿 week-07 (Persistencia local)
-    └── 🌿 week-08 (Autenticación y estado global)
+```bash
+pnpm install
+pnpm start
 ```
+
+Escanea el QR con Expo Go, o abre el simulador con `i` (iOS) / `a` (Android).
