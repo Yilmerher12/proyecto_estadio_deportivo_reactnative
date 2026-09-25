@@ -39,8 +39,14 @@ El código fuente del proyecto no se almacena centralizado en la rama principal,
 
 ```text
 proyecto-estadio-deportivo-reactnative/
-├──  README.md (Rama: main - Portada principal)
+├── README.md (Rama: main - Portada principal)
 └── [Ramas de trabajo]
-    ├── 🌿 week-01 (Fundamentos y configuración inicial)
-    ├── 🌿 week-02 (Rutas, controladores y manejo de datos)
-    └── 🌿 week-0...
+    ├── 🌿 week-01 (App de tarjetas — concesiones)
+    ├── 🌿 week-02 (Listas, inputs y estilos)
+    ├── 🌿 week-03 (React Navigation 7)
+    ├── 🌿 week-04 (Estado global con Zustand)
+    ├── 🌿 week-05 (Networking y TanStack Query v5)
+    ├── 🌿 week-06 (Formularios con React Hook Form + Zod)
+    ├── 🌿 week-07 (Persistencia local)
+    └── 🌿 week-08 (Autenticación y estado global)
+```
