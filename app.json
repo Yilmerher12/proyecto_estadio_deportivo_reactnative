@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "Estadio Deportivo - Gestos",
+    "slug": "estadio-deportivo-gestos",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "backgroundColor": "#0f172a"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.estadiodeportivo.week10"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0f172a",
+        "foregroundImage": "./assets/adaptive-icon.png"
+      },
+      "package": "com.estadiodeportivo.week10"
+    },
+    "scheme": "estadiogestos10"
+  }
+}
